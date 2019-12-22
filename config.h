@@ -4,7 +4,7 @@
 const unsigned int interval = 1000;
 
 /* text to show if no value can be retrieved */
-static const char unknown_str[] = "n/a";
+static const char unknown_str[] = "";
 
 /* maximum output string length */
 #define MAXLEN 2048
@@ -13,11 +13,11 @@ static const char unknown_str[] = "n/a";
  * function            description                     argument (example)
  *
  * battery_perc        battery percentage              battery name (BAT0)
- *                                                     NULL on OpenBSD
+ *                                                     NULL on OpenBSD/FreeBSD
  * battery_state       battery charging state          battery name (BAT0)
- *                                                     NULL on OpenBSD
+ *                                                     NULL on OpenBSD/FreeBSD
  * battery_remaining   battery remaining HH:MM         battery name (BAT0)
- *                                                     NULL on OpenBSD
+ *                                                     NULL on OpenBSD/FreeBSD
  * cpu_perc            cpu usage in percent            NULL
  * cpu_freq            cpu frequency in MHz            NULL
  * datetime            date and time                   format string (%F %T)
@@ -52,6 +52,8 @@ static const char unknown_str[] = "n/a";
  * temp                temperature in degree celsius   sensor file
  *                                                     (/sys/class/thermal/...)
  *                                                     NULL on OpenBSD
+ *                                                     thermal zone on FreeBSD
+ *                                                     (tz0, tz1, etc.)
  * uid                 UID of current user             NULL
  * uptime              system uptime                   NULL
  * username            username of current user        NULL
@@ -61,5 +63,10 @@ static const char unknown_str[] = "n/a";
  */
 static const struct arg args[] = {
 	/* function format          argument */
-	{ datetime, "%s",           "%F %T" },
+    { wifi_essid, "[%s ",        "wlp4s0" },
+    { wifi_perc, "%s%%] ",        "wlp4s0" },
+    { run_command, "[VOL: %s%%", "/bin/sh -c \"amixer -c 1 get Master | tail -n1 | grep -Po '\\[\\K[^%]*' | head -n1\"" },
+    { run_command, "%s] ", "/bin/sh -c \"amixer -c 1 get Master | tail -n1 | grep -Po '\\[((on)|(off))\\]' | sed -nre 's/.*off.*/ M/p'\"" },
+    { battery_perc, "[BAT: %s%%] ",        "BAT0" },
+	{ datetime, "%s",           "%F %H:%M" },
 };
